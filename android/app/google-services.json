@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "203010760315",
+    "project_id": "almaraqischool",
+    "storage_bucket": "almaraqischool.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203010760315:android:558121862b945478d98cde",
+        "android_client_info": {
+          "package_name": "com.shareedu.almaraqi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsmy_CEuX6-bQC0un3eJ48d1OxkpRPa8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
