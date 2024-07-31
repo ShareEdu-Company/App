@@ -1,20 +1,22 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:almaraqischool/screens/language/language_provider.dart';
 import 'package:almaraqischool/screens/login/login_provider.dart';
+import 'package:almaraqischool/shared/back_button.dart';
 import 'package:almaraqischool/utils/constants/syles.dart';
 import 'package:almaraqischool/utils/helper/tracking.dart';
 import 'package:almaraqischool/utils/translations/locale_keys.g.dart';
-import '../screens/language/language_provider.dart';
-import 'back_button.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_auth/local_auth.dart';
 
-class AppBarWidget extends StatelessWidget with PreferredSizeWidget {
+class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool hasBackButton;
   final bool hasTrackingButton;
   final bool hasLang;
   final TextStyle? titleTextStyle;
   final double titlePadding;
+
   const AppBarWidget({
     Key? key,
     required this.title,
@@ -27,6 +29,28 @@ class AppBarWidget extends StatelessWidget with PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final LocalAuthentication auth = LocalAuthentication();
+
+    Future<void> _authenticate(BuildContext context) async {
+      bool authenticated = false;
+      try {
+        authenticated = await auth.authenticate(
+          localizedReason: 'Please authenticate to continue',
+          options: const AuthenticationOptions(
+            useErrorDialogs: true,
+            stickyAuth: true,
+          ),
+        );
+        if (authenticated) {
+          print("Authenticated successfully");
+        } else {
+          print("Failed to authenticate");
+        }
+      } catch (e) {
+        print("Error: $e");
+      }
+    }
+
     return Container(
       decoration: const BoxDecoration(color: AppStyles.primaryColor),
       child: Column(
@@ -62,7 +86,7 @@ class AppBarWidget extends StatelessWidget with PreferredSizeWidget {
                   Consumer(
                     builder: (context, ref, child) {
                       if (ref.read(userTypeProvider.notifier).state ==
-                              UserType.trackedEmployee ||
+                          UserType.trackedEmployee ||
                           ref.read(userTypeProvider.notifier).state ==
                               UserType.employee) {
                         return Row(
@@ -80,22 +104,22 @@ class AppBarWidget extends StatelessWidget with PreferredSizeWidget {
                               return Switch(
                                 value: ref.watch(trackingProvider),
                                 onChanged: ref
-                                            .read(userTypeProvider.notifier)
-                                            .state ==
-                                        UserType.employee
+                                    .read(userTypeProvider.notifier)
+                                    .state ==
+                                    UserType.employee
                                     ? null
                                     : (v) {
-                                        if (v) {
-                                          ref
-                                              .read(trackingProvider.notifier)
-                                              .state = true;
-                                          tracking.startTracking();
-                                        } else {
-                                          ref
-                                              .read(trackingProvider.notifier)
-                                              .state = false;
-                                        }
-                                      },
+                                  if (v) {
+                                    ref
+                                        .read(trackingProvider.notifier)
+                                        .state = true;
+                                    tracking.startTracking();
+                                  } else {
+                                    ref
+                                        .read(trackingProvider.notifier)
+                                        .state = false;
+                                  }
+                                },
                                 activeColor: const Color(0xffBDEBFB),
                                 activeTrackColor: const Color(0xff32DB00),
                               );
@@ -110,15 +134,28 @@ class AppBarWidget extends StatelessWidget with PreferredSizeWidget {
                   ),
                 if (hasLang)
                   Consumer(builder: (context, ref, _) {
-                    return InkWell(
-                      onTap: () => ref
-                          .read(changeLangProvider)
-                          .onChangeLangPressed(context, ref),
-                      child: const Icon(
-                        Icons.language_rounded,
-                        color: Color(0xffBDEBFB),
-                        size: 28,
-                      ),
+                    return Row(
+                      children: [
+                        InkWell(
+                          onTap: () => ref
+                              .read(changeLangProvider)
+                              .onChangeLangPressed(context, ref),
+                          child: const Icon(
+                            Icons.language_rounded,
+                            color: Color(0xffBDEBFB),
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        InkWell(
+                          onTap: () => _authenticate(context),
+                          child: const Icon(
+                            Icons.fingerprint,
+                            color: Color(0xffBDEBFB),
+                            size: 28,
+                          ),
+                        ),
+                      ],
                     );
                   }),
               ],
